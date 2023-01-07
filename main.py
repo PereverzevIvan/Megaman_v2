@@ -18,9 +18,8 @@ class App:
         self.clock = time.Clock()
 
     def run(self):
-        start_screen = StartScreen(self.window)
         while True:
-            action = start_screen.run()
+            action = StartScreen(self.window).run()
             if action == 'quit':
                 game_end()
             else:

@@ -1,6 +1,7 @@
-from pygame import font, surface, display, time
+from pygame import font, surface, display, time, mouse
 from pygame.constants import *
 from pygame import event as pg_event
+from src.modules.gui_elems import Label, Button
 from settings import *
 
 
@@ -12,8 +13,8 @@ class InteractionScreen:
         self.music = ''
         self.bg_image = ''
         self.darkening_screen = surface.Surface((self.w, self.h), SRCALPHA)
-        self.font_heading = font.Font(None, int(self.w / 12.8))  # font-size: 50
-        self.font_text = font.Font(None, int(self.w / 25.6))  # font-size: 25
+        self.heading_font_size = int(self.w / 12.8)  # font-size: 50
+        self.text_font_size = int(self.w / 25.6)  # font-size: 25
         self.clock = time.Clock()
 
         self.begin = True
@@ -40,30 +41,15 @@ class StartScreen(InteractionScreen):
         super(StartScreen, self).__init__(screen)
         self.bg_image = surface.Surface((self.w, self.h))
         self.bg_image.fill(BLACK)
-        self.heading = self.font_heading.render('MEGA MAN', True, WHITE)
-        self.heading_rect = self.heading.get_rect(center=(self.w // 2, self.h // 9))
+        self.heading = Label(self.w // 2, self.h // 9, self.heading_font_size, 'MEGA MAN', self.screen)
 
         self.variants = [
-            self.font_text.render('GAME START', True, WHITE),
-            self.font_text.render('SETTINGS', True, WHITE),
-            self.font_text.render('QUIT', True, WHITE),
-        ]
-        self.variants_rect = [
-            self.variants[0].get_rect(center=(self.w // 2, self.h // 1.55)),
-            self.variants[1].get_rect(center=(self.w // 2, self.h // 1.4)),
-            self.variants[2].get_rect(center=(self.w // 2, self.h // 1.28))
+            Button(int(self.w // 2), int(self.h // 1.55), self.text_font_size, 'GAME START', self.screen, 0),
+            Button(int(self.w // 2), int(self.h // 1.4), self.text_font_size, 'SETTINGS', self.screen, 1),
+            Button(int(self.w // 2), int(self.h // 1.28), self.text_font_size, 'QUIT', self.screen, 2)
         ]
 
         self.cursor = 0
-        self.cursor_image = surface.Surface((self.w // 42, self.w // 42))
-        self.cursor_image.fill(RED)
-        self.cursor_pos = [(self.w // 2.55, self.h // 1.55), (self.w // 2.55, self.h // 1.4),
-                           (self.w // 2.55, self.h // 1.28)]
-        self.cursor_rect = self.cursor_image.get_rect(center=self.cursor_pos[self.cursor])
-
-    def move_cursor(self, move: int):
-        self.cursor = (self.cursor + move) % 3
-        self.cursor_rect.center = self.cursor_pos[self.cursor]
 
     def action(self):
         if self.cursor == 0:
@@ -74,9 +60,8 @@ class StartScreen(InteractionScreen):
 
     def draw(self):
         self.screen.blit(self.bg_image, (0, 0))
-        self.screen.blit(self.heading, self.heading_rect)
-        [self.screen.blit(self.variants[i], self.variants_rect[i]) for i in range(3)]
-        self.screen.blit(self.cursor_image, self.cursor_rect)
+        self.heading.draw()
+        [self.variants[i].draw() for i in range(3)]
 
         if self.begin:
             self.rising()
@@ -89,12 +74,19 @@ class StartScreen(InteractionScreen):
                 if event.type == QUIT:
                     game_end()
                 if event.type == KEYDOWN:
-                    if event.key == K_UP:
-                        self.move_cursor(-1)
-                    elif event.key == K_DOWN:
-                        self.move_cursor(1)
+                    pass
                     if event.key == K_RETURN:
                         run = False
+                if event.type == MOUSEMOTION:
+                    hovers = [btn.check_hover(mouse.get_pos()) for btn in self.variants]
+                    if any(hovers):
+                        if self.cursor != hovers.index(True):
+                            self.cursor = hovers.index(True)
+                if event.type == MOUSEBUTTONDOWN:
+                    presses = [btn.check_press(mouse.get_pos()) for btn in self.variants]
+                    if any(presses):
+                        run = False
+
             self.draw()
             self.window.blit(self.screen, (0, 0))
             self.clock.tick(FPS)
