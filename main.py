@@ -3,7 +3,7 @@ from pygame import mixer, display, time
 from pygame.constants import *
 from pygame import event as pg_event, init as pg_init
 from settings import *
-from src.modules.screens import StartScreen
+from src.modules.screens import StartScreen, SettingsScreen
 
 mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
 pg_init()
@@ -22,8 +22,8 @@ class App:
             action = StartScreen(self.window).run()
             if action == 'quit':
                 game_end()
-            else:
-                pass
+            elif action == 'settings':
+                action = SettingsScreen(self.window).run()
 
 
 if __name__ == '__main__':

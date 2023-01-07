@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 # General
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 1280 // 2
+HEIGHT = 720 // 2
 FPS = 60
 
 # Colors

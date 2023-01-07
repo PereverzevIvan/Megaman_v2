@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pygame import font, rect, surface, draw
 from pygame.constants import SRCALPHA
 from settings import *
@@ -57,4 +58,60 @@ class Button(Label):
 
     def check_press(self, mouse_pos: (int, int)):
         self.was_press = self.text_rect.collidepoint(mouse_pos)
+        return self.was_press
+
+
+class Slider:
+    def __init__(self, c_x: int, c_y: int, w: int, h: int, screen: surface.Surface):
+        self.rect = rect.Rect(0, 0, w, h)
+        self.rect.center = (c_x, c_y)
+        self.screen = screen
+
+        self.cursor = surface.Surface((h * 0.5, h * 1.2))
+        self.cursor_rect = self.cursor.get_rect(center=(self.rect.left, self.rect.centery))
+        self.cursor_pos = 0
+        self.cursor_states = [int(w // 100 * i) for i in range(101)]
+
+        self.fill_rect = self.rect.copy()
+        self.fill_rect.w = self.cursor_states[self.cursor_pos]
+
+        self.label = Label(self.rect.right + 20, self.rect.centery, self.rect.w // 8, str(self.cursor_pos), self.screen)
+
+        self.hover = False
+        self.was_press = False
+
+        self.border_color = GRAY
+        self.fill_color = WHITE
+
+    def draw(self):
+        draw.rect(self.screen, self.fill_color, self.fill_rect)
+        draw.rect(self.screen, self.border_color, self.rect, width=2)
+        if self.hover or self.was_press:
+            draw.rect(self.screen, self.fill_color, self.cursor_rect)
+        else:
+            draw.rect(self.screen, self.border_color, self.cursor_rect)
+        self.label.draw()
+
+    def update_cursor_rect(self, cursor_pos):
+        self.cursor_rect.centerx = self.rect.left + self.cursor_states[cursor_pos]
+
+    def update_pos(self, mouse_pos: (int, int)):
+        x, y = mouse_pos
+        if self.was_press:
+            if self.rect.left - 50 <= x <= self.rect.right + 50:
+                x = min(self.rect.right, x)
+                x = max(self.rect.left, x)
+                difference = x - self.rect.left
+                if difference in self.cursor_states:
+                    self.cursor_pos = self.cursor_states.index(difference)
+                    self.update_cursor_rect(self.cursor_pos)
+                    self.fill_rect.w = self.cursor_states[self.cursor_pos]
+                    self.label.change_text(str(self.cursor_pos))
+
+    def check_hover(self, mouse_pos: (int, int)):
+        self.hover = self.cursor_rect.collidepoint(mouse_pos)
+        return self.hover
+
+    def check_press(self, mouse_pos: (int, int)):
+        self.was_press = self.cursor_rect.collidepoint(mouse_pos)
         return self.was_press
