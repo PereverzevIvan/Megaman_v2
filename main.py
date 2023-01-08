@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from pygame import mixer, display, time
-from pygame.constants import *
-from pygame import event as pg_event, init as pg_init
+from pygame import init as pg_init
 from settings import *
 from src.modules.screens import StartScreen, SettingsScreen
 
