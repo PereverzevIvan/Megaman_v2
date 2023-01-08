@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 # General
-WIDTH = 1280 // 2
-HEIGHT = 720 // 2
-FPS = 60
+with open('pre_settings.txt', mode='r', encoding='utf-8') as file:
+    data = [line.strip().split('=')[1] for line in file.readlines()]
+    WIDTH = int(data[0])
+    HEIGHT = int(data[1])
+    MUSIC_V = int(data[2])
+    SOUND_V = int(data[3])
+    FULL_SCREEN = bool(data[4])
+    FPS = 60
+
 
 # Colors
 WHITE = (255, 255, 255)

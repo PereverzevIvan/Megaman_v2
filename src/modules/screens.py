@@ -106,9 +106,14 @@ class SettingsScreen(InteractionScreen):
                                self.text_font_size, '    SAVE    ', self.screen, 0)
         self.btn_def = Button(int(self.w // 1.64), int(self.h // 1.1), self.text_font_size, 'DEFAULT', self.screen, 0)
 
-        self.slider_volume = Slider(WIDTH // 2, HEIGHT // 2, 200, 30, self.screen)
+        self.slider_volume = Slider(WIDTH // 2, HEIGHT // 2, round(WIDTH / 3.2), HEIGHT // 12, self.screen)
 
         self.btns = [self.btn_save, self.btn_def]
+
+        self.move_slider = False
+
+    def save_settings(self):
+        pass
 
     def draw(self):
         self.screen.blit(self.bg_image, (0, 0))
@@ -142,15 +147,21 @@ class SettingsScreen(InteractionScreen):
                 if event.type == MOUSEBUTTONDOWN:
                     if self.btn_save.check_press(mouse.get_pos()):
                         run = False
-                    self.slider_volume.check_press(mouse_pos)
+                        self.save_settings()
+                    if self.slider_volume.check_press(mouse_pos) and not self.move_slider:
+                        self.move_slider = True
+
                 if event.type == MOUSEBUTTONUP:
                     if self.slider_volume.was_press:
                         self.slider_volume.was_press = False
+                        self.move_slider = False
 
-            self.slider_volume.update_pos(mouse_pos)
+            if self.move_slider:
+                self.slider_volume.update_pos(mouse_pos)
             self.draw()
             self.window.blit(self.screen, (0, 0))
             self.clock.tick(FPS)
             display.update()
+            display.set_caption(str(self.clock.get_fps()))
         self.attenuation()
         return None

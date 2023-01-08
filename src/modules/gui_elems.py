@@ -75,7 +75,8 @@ class Slider:
         self.fill_rect = self.rect.copy()
         self.fill_rect.w = self.cursor_states[self.cursor_pos]
 
-        self.label = Label(self.rect.right + 20, self.rect.centery, self.rect.w // 8, str(self.cursor_pos), self.screen)
+        self.label = Label(self.rect.right + WIDTH // 32, self.rect.centery, self.rect.w // 8, str(self.cursor_pos),
+                           self.screen)
 
         self.hover = False
         self.was_press = False
@@ -92,21 +93,22 @@ class Slider:
             draw.rect(self.screen, self.border_color, self.cursor_rect)
         self.label.draw()
 
-    def update_cursor_rect(self, cursor_pos):
-        self.cursor_rect.centerx = self.rect.left + self.cursor_states[cursor_pos]
+    def define_cursor_pos(self, difference):
+        for state in self.cursor_states:
+            if difference <= state:
+                return state
 
     def update_pos(self, mouse_pos: (int, int)):
         x, y = mouse_pos
         if self.was_press:
-            if self.rect.left - 50 <= x <= self.rect.right + 50:
+            if self.rect.left - 10 <= x <= self.rect.right + 10:
                 x = min(self.rect.right, x)
                 x = max(self.rect.left, x)
-                difference = x - self.rect.left
-                if difference in self.cursor_states:
-                    self.cursor_pos = self.cursor_states.index(difference)
-                    self.update_cursor_rect(self.cursor_pos)
-                    self.fill_rect.w = self.cursor_states[self.cursor_pos]
-                    self.label.change_text(str(self.cursor_pos))
+                difference = self.define_cursor_pos(x - self.rect.left)
+                self.cursor_pos = self.cursor_states.index(difference)
+                self.cursor_rect.centerx = x
+                self.fill_rect.w = difference
+                self.label.change_text(str(self.cursor_pos))
 
     def check_hover(self, mouse_pos: (int, int)):
         self.hover = self.cursor_rect.collidepoint(mouse_pos)
