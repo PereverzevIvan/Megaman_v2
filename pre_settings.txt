@@ -1,5 +1,5 @@
-w=1280
-h=720
-music=100
-sound=100
-full_screen=False
+w=640
+h=360
+music=57
+sound=64
+full_screen=0

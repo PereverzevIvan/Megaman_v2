@@ -81,15 +81,15 @@ class Slider:
         self.rect.center = (c_x, c_y)
         self.screen = screen
 
-        self.cursor = Surface((h * 0.5, h * 1.2))
-        self.cursor_rect = self.cursor.get_rect(center=(self.rect.left, self.rect.centery))
-        self.cursor_pos = 0
+        self.cursor_image = Surface((h * 0.5, h * 1.2))
+        self.cursor_rect = self.cursor_image.get_rect(center=(self.rect.left, self.rect.centery))
+        self.cursor = 0
         self.cursor_states = [int(w // 100 * i) for i in range(101)]
 
         self.fill_rect = self.rect.copy()
-        self.fill_rect.w = self.cursor_states[self.cursor_pos]
+        self.fill_rect.w = self.cursor_states[self.cursor]
 
-        self.label = Label(self.rect.right + WIDTH // 32, self.rect.centery, self.rect.w // 8, str(self.cursor_pos),
+        self.label = Label(self.rect.right + WIDTH // 32, self.rect.centery, self.rect.w // 8, str(self.cursor),
                            self.screen)
 
         self.hover = False
@@ -97,6 +97,12 @@ class Slider:
 
         self.border_color = GRAY
         self.fill_color = WHITE
+
+    def set_cursor(self, cursor):
+        self.cursor = cursor
+        self.cursor_rect.centerx = self.rect.left + self.cursor_states[self.cursor]
+        self.fill_rect.w = self.cursor_states[self.cursor]
+        self.label.change_text(str(self.cursor))
 
     def draw(self):
         draw.rect(self.screen, self.fill_color, self.fill_rect)
@@ -115,14 +121,13 @@ class Slider:
     def update_pos(self, mouse_pos: (int, int)):
         x, y = mouse_pos
         if self.was_press:
-            if self.rect.left - 10 <= x <= self.rect.right + 10:
-                x = min(self.rect.right, x)
-                x = max(self.rect.left, x)
-                difference = self.define_cursor_pos(x - self.rect.left)
-                self.cursor_pos = self.cursor_states.index(difference)
-                self.cursor_rect.centerx = x
-                self.fill_rect.w = difference
-                self.label.change_text(str(self.cursor_pos))
+            x = min(self.rect.right, x)
+            x = max(self.rect.left, x)
+            difference = self.define_cursor_pos(x - self.rect.left)
+            self.cursor = self.cursor_states.index(difference)
+            self.cursor_rect.centerx = x
+            self.fill_rect.w = difference
+            self.label.change_text(str(self.cursor))
 
     def check_hover(self, mouse_pos: (int, int)):
         self.hover = self.cursor_rect.collidepoint(mouse_pos)
@@ -133,7 +138,7 @@ class Slider:
         return self.was_press
 
     def return_value(self):
-        return self.cursor_pos
+        return self.cursor
 
 
 class ButtonWithImage(Button):

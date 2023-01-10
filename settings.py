@@ -6,7 +6,7 @@ with open('pre_settings.txt', mode='r', encoding='utf-8') as file:
     HEIGHT = int(data[1])
     MUSIC_V = int(data[2])
     SOUND_V = int(data[3])
-    FULL_SCREEN = bool(data[4])
+    FULL_SCREEN = False if int(data[4]) == 0 else True
     FPS = 60
 
 
